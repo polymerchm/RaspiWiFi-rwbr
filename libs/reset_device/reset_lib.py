@@ -76,6 +76,7 @@ def is_wifi_active():
 
 	return wifi_active
 
+# Sets the Raspberry Pi to host mode, i.e. it runs as hotspot after reboot
 def reset_to_host_mode():
 	if not os.path.isfile('/etc/raspiwifi/host_mode'):
 		os.system('aplay /usr/lib/raspiwifi/reset_device/button_chime.wav')
@@ -89,5 +90,6 @@ def reset_to_host_mode():
 		os.system('mv /etc/dnsmasq.conf /etc/dnsmasq.conf.original')
 		os.system('cp /usr/lib/raspiwifi/reset_device/static_files/dnsmasq.conf /etc/')
 		os.system('cp /usr/lib/raspiwifi/reset_device/static_files/dhcpcd.conf /etc/')
+		# TODO: Configure IPTABLES and DNSMASQ for hotspot mode
 		os.system('touch /etc/raspiwifi/host_mode')
 	os.system('reboot')

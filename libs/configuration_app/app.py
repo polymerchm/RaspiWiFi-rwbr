@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import subprocess
 import os
 import time
@@ -16,6 +16,9 @@ def index():
 
     return render_template('app.html', wifi_ap_array = wifi_ap_array, config_hash = config_hash)
 
+@app.route("/<path:path>")
+def catch_all(path):
+    return redirect("http://10.0.0.1/", code=302)
 
 @app.route('/manual_ssid_entry')
 def manual_ssid_entry():
@@ -111,6 +114,7 @@ def set_ap_client_mode():
     os.system('chmod +x /etc/cron.raspiwifi/apclient_bootstrapper')
     os.system('mv /etc/dnsmasq.conf.original /etc/dnsmasq.conf')
     os.system('mv /etc/dhcpcd.conf.original /etc/dhcpcd.conf')
+    # TODO: Configure IPTABLES and DNSMASQ for client mode
     os.system('reboot')
 
 def update_wpa(wpa_enabled, wpa_key):
