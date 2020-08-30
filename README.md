@@ -12,6 +12,13 @@ might use while connected through a network.
 
 RaspiWiFi has been **tested with the Raspberry Pi B+, Raspberry Pi 3, and Raspberry Pi Zero W**.
 
+This repository was forked from [jasbur/RaspiWiFi](https://github.com/jasbur/RaspiWiFi). It was forked to implement additional features.
+
+## Roadmap / Feature requests
+
+- [ ] Modern, clean web ui with Bootstarp integration
+- [ ] Captive portal: automatically open the web ui after connecting to the hotspot
+
 ## OS IMAGE USAGE
 
 Just burn the ".IMG" file attached to this release to an 8GB+ SD card. Boot
