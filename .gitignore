@@ -1,3 +1,5 @@
 __pycache__
 libs/reset_device/.DS_Store
 .DS_Store
+libs/configuration_app/config.yaml
+libs/configuration_app/raspiwifi.conf
