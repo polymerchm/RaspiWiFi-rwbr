@@ -84,6 +84,14 @@ You will be prompted to set a few variables during the Initial Setup script:
 All of these variables can be set at any time after the initial setup has
 been running by editing the ```/etc/raspiwifi/raspiwifi.conf```
 
+## SET CONFIGURATION FOR WEB SITE
+
+**Not mandatory**, but helpful to set the strings of the footer and the title of the web pages:
+Create a config file (see below) and copy it to the right path.
+
+```bash
+sudo cp config.yaml  /usr/lib/raspiwifi/configuration_app/
+```
 
 ## USAGE
 
@@ -136,3 +144,46 @@ sudo python3 /usr/lib/raspiwifi/uninstall.python3
 You can also run it from the "libs/" directory from a fresh clone if you've 
 installed from a previous version and don't have ```/usr/lib/raspiwifi/uninstall.py ```
 available.
+
+## CONFIGURATION
+
+### Parameters for the web pages
+
+It#s possible to set some elements of the web pages with the contents of a YAML file called **config.yaml**. This file is expected to be found in the ```configuration_app```folder. (This configuration file is excluded from git.)
+
+Example file: 
+
+```yaml
+web:
+    footer:
+        vendor_name: New Startup Inc.
+        version_nr: 1.0
+        year: 2020
+    
+    title: NewStartup
+```
+
+These parameter set the first part of the HTML title tag as well as the footer string of the webpages.
+
+## DEVELOPMENT
+
+To make changes on the web pages you can run your code in a container. With VSCode and the [Remote Containers extension](https://github.com/Microsoft/vscode-remote-release) it is really easy. 
+
+### Open your workspace in the container
+
+Click the button in the lower left corner of the editor window to open the workspace in a container.
+
+![Open in container](img/devcontainer1.png)
+
+In the menu select the command ```Remote-Containers: Reopen in Container```.
+
+![Menu to open in container](img/devcontainer2.png)
+
+The project is configured to load the Python3 container. After the container started, you can open the termninal window of VSCode and run the following commands:
+
+![Run the app in development mode](img/devcontainer_terminal.png)
+
+You need a copy of the raspiwifi.conf in teh same folder (thi file is not under version control). Mind the command line option ```--test```!
+
+Click the URL in the terminal window to redirect your browser to your web application.
+

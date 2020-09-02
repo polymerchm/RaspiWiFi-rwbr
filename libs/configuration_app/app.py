@@ -1,20 +1,30 @@
 from flask import Flask, render_template, request, redirect
 import subprocess
 import os
+import sys
 import time
+import yaml
 from threading import Thread
 import fileinput
 
 app = Flask(__name__)
 app.debug = True
 
+is_test = False
+title_vendor_name = ''
+footer_vendor_name = ''
+footer_version_nr = ''
+footer_year = ''
 
 @app.route('/')
 def index():
-    wifi_ap_array = scan_wifi_networks()
+    if is_test == True:
+        wifi_ap_array = ['hello','abcd']
+    else:
+        wifi_ap_array = scan_wifi_networks()
     config_hash = config_file_hash()
 
-    return render_template('app.html', wifi_ap_array = wifi_ap_array, config_hash = config_hash)
+    return render_template('app.html', wifi_ap_array = wifi_ap_array, config_hash = config_hash, footer_vendor_name = footer_vendor_name, footer_version_nr = footer_version_nr, footer_year = footer_year, title_vendor_name = title_vendor_name)
 
 @app.route("/<path:path>")
 def catch_all(path):
@@ -22,12 +32,12 @@ def catch_all(path):
 
 @app.route('/manual_ssid_entry')
 def manual_ssid_entry():
-    return render_template('manual_ssid_entry.html')
+    return render_template('manual_ssid_entry.html', footer_vendor_name = footer_vendor_name, footer_version_nr = footer_version_nr, footer_year = footer_year, title_vendor_name = title_vendor_name)
 
 @app.route('/wpa_settings')
 def wpa_settings():
     config_hash = config_file_hash()
-    return render_template('wpa_settings.html', wpa_enabled = config_hash['wpa_enabled'], wpa_key = config_hash['wpa_key'])
+    return render_template('wpa_settings.html', wpa_enabled = config_hash['wpa_enabled'], wpa_key = config_hash['wpa_key'], footer_vendor_name = footer_vendor_name, footer_version_nr = footer_version_nr, footer_year = footer_year, title_vendor_name = title_vendor_name)
 
 
 @app.route('/save_credentials', methods = ['GET', 'POST'])
@@ -35,17 +45,19 @@ def save_credentials():
     ssid = request.form['ssid']
     wifi_key = request.form['wifi_key']
 
-    create_wpa_supplicant(ssid, wifi_key)
+    if is_test == False:
+        create_wpa_supplicant(ssid, wifi_key)
     
     # Call set_ap_client_mode() in a thread otherwise the reboot will prevent
     # the response from getting to the browser
     def sleep_and_start_ap():
         time.sleep(2)
-        set_ap_client_mode()
+        if is_test == False:
+            set_ap_client_mode()
     t = Thread(target=sleep_and_start_ap)
     t.start()
 
-    return render_template('save_credentials.html', ssid = ssid)
+    return render_template('save_credentials.html', ssid = ssid, footer_vendor_name = footer_vendor_name, footer_version_nr = footer_version_nr, footer_year = footer_year, title_vendor_name = title_vendor_name)
 
 
 @app.route('/save_wpa_credentials', methods = ['GET', 'POST'])
@@ -54,10 +66,11 @@ def save_wpa_credentials():
     wpa_enabled = request.form.get('wpa_enabled')
     wpa_key = request.form['wpa_key']
 
-    if str(wpa_enabled) == '1':
-        update_wpa(1, wpa_key)
-    else:
-        update_wpa(0, wpa_key)
+    if is_test == False:
+        if str(wpa_enabled) == '1':
+            update_wpa(1, wpa_key)
+        else:
+            update_wpa(0, wpa_key)
 
     def sleep_and_reboot_for_wpa():
         time.sleep(2)
@@ -67,7 +80,7 @@ def save_wpa_credentials():
     t.start()
 
     config_hash = config_file_hash()
-    return render_template('save_wpa_credentials.html', wpa_enabled = config_hash['wpa_enabled'], wpa_key = config_hash['wpa_key'])
+    return render_template('save_wpa_credentials.html', wpa_enabled = config_hash['wpa_enabled'], wpa_key = config_hash['wpa_key'], footer_vendor_name = footer_vendor_name, footer_version_nr = footer_version_nr, footer_year = footer_year, title_vendor_name = title_vendor_name)
 
 
 
@@ -135,7 +148,10 @@ def update_wpa(wpa_enabled, wpa_key):
 
 
 def config_file_hash():
-    config_file = open('/etc/raspiwifi/raspiwifi.conf')
+    config_file_path = '/etc/raspiwifi/raspiwifi.conf'
+    if is_test == True:
+        config_file_path = 'raspiwifi.conf'
+    config_file = open(config_file_path)
     config_hash = {}
 
     for line in config_file:
@@ -147,6 +163,27 @@ def config_file_hash():
 
 
 if __name__ == '__main__':
+    if os.path.exists('config.yaml'):
+        file = open('config.yaml', 'r')
+        cfg = yaml.load(file, Loader=yaml.FullLoader)
+
+        footer_vendor_name = cfg['web']['footer']['vendor_name']
+        footer_version_nr = cfg['web']['footer']['version_nr']
+        footer_year = cfg['web']['footer']['year']
+        title_vendor_name = cfg['web']['title']
+    else:
+        footer_vendor_name = 'Fancy Startup'
+        footer_version_nr = '1.0'
+        footer_year = '2020'
+        title_vendor_name = footer_vendor_name
+    
+    print(footer_vendor_name, footer_year, footer_version_nr)
+
+    if len(sys.argv) > 1:
+        is_test_string = sys.argv[1]
+        if is_test_string == '--test':
+            print('Staring app in test mode ...')
+            is_test = True
     config_hash = config_file_hash()
 
     if config_hash['ssl_enabled'] == "1":
