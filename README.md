@@ -84,6 +84,14 @@ You will be prompted to set a few variables during the Initial Setup script:
 All of these variables can be set at any time after the initial setup has
 been running by editing the ```/etc/raspiwifi/raspiwifi.conf```
 
+## SET CONFIGURATION FOR WEB SITE
+
+**Not mandatory**, but helpful to set the strings of the footer and the title of the web pages:
+Create a config file (see below) and copy it to the right path.
+
+```bash
+sudo cp config.yaml  /usr/lib/raspiwifi/configuration_app/
+```
 
 ## USAGE
 
