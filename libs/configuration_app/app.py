@@ -163,20 +163,27 @@ def config_file_hash():
 
 
 if __name__ == '__main__':
-    file = open('config.yaml', 'r')
-    cfg = yaml.load(file, Loader=yaml.FullLoader)
+    if os.path.exists('config.yaml'):
+        file = open('config.yaml', 'r')
+        cfg = yaml.load(file, Loader=yaml.FullLoader)
 
-    footer_vendor_name = cfg['web']['footer']['vendor_name']
-    footer_version_nr = cfg['web']['footer']['version_nr']
-    footer_year = cfg['web']['footer']['year']
-    title_vendor_name = cfg['web']['title']
-
+        footer_vendor_name = cfg['web']['footer']['vendor_name']
+        footer_version_nr = cfg['web']['footer']['version_nr']
+        footer_year = cfg['web']['footer']['year']
+        title_vendor_name = cfg['web']['title']
+    else:
+        footer_vendor_name = 'Fancy Startup'
+        footer_version_nr = '1.0'
+        footer_year = '2020'
+        title_vendor_name = footer_vendor_name
+    
     print(footer_vendor_name, footer_year, footer_version_nr)
 
-    is_test_string = sys.argv[1]
-    if is_test_string == '--test':
-        print('Staring app in test mode ...')
-        is_test = True
+    if len(sys.argv) > 1:
+        is_test_string = sys.argv[1]
+        if is_test_string == '--test':
+            print('Staring app in test mode ...')
+            is_test = True
     config_hash = config_file_hash()
 
     if config_hash['ssl_enabled'] == "1":
